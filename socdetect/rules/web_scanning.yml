@@ -1,0 +1,36 @@
+title: Web scanning
+id: web-scanning
+status: experimental
+author: Alexandru Cojocari
+description: >
+  One client requests many distinct paths and receives mostly client or server
+  errors in a short window. Typical of vulnerability scanners walking a host.
+level: medium
+base_score: 52
+mitre:
+  technique: T1595.002
+  technique_name: Vulnerability Scanning
+  tactic: Reconnaissance
+tags:
+  - attack.reconnaissance
+  - attack.t1595.002
+falsepositives:
+  - A broken client or a deploy smoke test hitting removed routes
+  - An uptime checker with a long, mostly failing URL list
+recommendation: >
+  Check the user agent and whether the source is an approved scanner. If it is
+  not, block the address and look for any probe that returned a status below 400.
+logsource:
+  category: web
+detection:
+  selection:
+    source: web_access
+    event_type: http_request
+  threshold:
+    group_by:
+      - src_ip
+    window: 10m
+    min_count: 12
+    unique_field: path
+    min_unique: 12
+    status_gte: 400

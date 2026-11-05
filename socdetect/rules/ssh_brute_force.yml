@@ -1,0 +1,39 @@
+title: SSH brute force
+id: ssh-brute-force
+status: experimental
+author: Alexandru Cojocari
+description: >
+  Many failed SSH password attempts for one account from a single source
+  address inside a short window. This is the usual shape of online password
+  guessing against sshd.
+level: high
+base_score: 72
+mitre:
+  technique: T1110.001
+  technique_name: Password Guessing
+  tactic: Credential Access
+tags:
+  - attack.credential_access
+  - attack.t1110.001
+falsepositives:
+  - A user or script retrying one mistyped password
+  - An approved credential-audit appliance
+recommendation: >
+  Confirm the source is not a known scanner. If any attempt then succeeded,
+  reset that credential, invalidate sessions, and escalate to Tier-2 with the
+  raw lines attached.
+logsource:
+  product: linux
+  service: sshd
+detection:
+  selection:
+    source: linux_auth
+    event_type: ssh_auth
+    outcome: failure
+  threshold:
+    group_by:
+      - src_ip
+      - user
+    window: 10m
+    min_count: 8
+    include_later_success: true

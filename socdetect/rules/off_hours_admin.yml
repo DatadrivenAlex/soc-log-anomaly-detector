@@ -1,0 +1,41 @@
+title: Off-hours privileged logon
+id: off-hours-admin
+status: experimental
+author: Alexandru Cojocari
+description: >
+  A privileged account (root, Administrator, an elevated Windows token, or
+  Event ID 4672) authenticates successfully outside 08:00-18:00 UTC on a
+  weekday, or at any time on Saturday or Sunday.
+level: high
+base_score: 74
+mitre:
+  technique: T1078.002
+  technique_name: Domain Accounts
+  tactic: Defense Evasion
+tags:
+  - attack.defense_evasion
+  - attack.t1078.002
+falsepositives:
+  - A documented on-call change window
+  - A backup or directory job running as a privileged service account
+recommendation: >
+  Match the logon to a change ticket or on-call rota. Interactive logons
+  (SSH, or Windows logon type 10) without a ticket should be escalated,
+  the credential rotated, and the source address reviewed.
+logsource:
+  product: windows
+  category: authentication
+detection:
+  selection:
+    outcome: success
+    privileged: true
+    event_type:
+      - ssh_auth
+      - windows_logon
+      - windows_privilege
+  time_filter:
+    start: "08:00"
+    end: "18:00"
+  aggregate:
+    group_by:
+      - user
