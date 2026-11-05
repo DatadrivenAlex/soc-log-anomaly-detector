@@ -1,0 +1,40 @@
+title: Path traversal
+id: path-traversal
+status: experimental
+author: Alexandru Cojocari
+description: >
+  A web request path or query contains a directory traversal sequence or a
+  direct read of a sensitive Unix file. The URL is percent-decoded twice
+  before matching.
+level: high
+base_score: 76
+mitre:
+  technique: T1190
+  technique_name: Exploit Public-Facing Application
+  tactic: Initial Access
+tags:
+  - attack.initial_access
+  - attack.t1190
+falsepositives:
+  - An application that legitimately echoes a path containing ".."
+  - A security test that was scheduled and is still in window
+recommendation: >
+  Capture the response status and body size. A status below 400 on a traversal
+  URL is a possible file read: isolate the host and escalate to Tier-2. A 4xx
+  can stay at high while you confirm the WAF or app rejected it.
+logsource:
+  category: web
+detection:
+  selection:
+    source: web_access
+  match:
+    field: url
+    any_contains:
+      - "../"
+      - "..\\"
+      - "/etc/passwd"
+      - "/etc/shadow"
+      - "%2e%2e"
+  aggregate:
+    group_by:
+      - src_ip

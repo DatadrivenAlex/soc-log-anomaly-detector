@@ -1,0 +1,34 @@
+title: Impossible travel
+id: impossible-travel
+status: experimental
+author: Alexandru Cojocari
+description: >
+  The same account authenticates successfully from two points that are too far
+  apart for the time between them, faster than 900 km/h after a 500 km minimum.
+  Lab cities come from the built-in TEST-NET map, not from a live GeoIP database.
+level: high
+base_score: 80
+mitre:
+  technique: T1078
+  technique_name: Valid Accounts
+  tactic: Defense Evasion
+tags:
+  - attack.defense_evasion
+  - attack.t1078
+falsepositives:
+  - Corporate VPN or cloud egress that changes city between requests
+  - An account shared by operators in two regions
+recommendation: >
+  Ask the account owner whether they traveled or used a VPN. If they did not,
+  reset the credential, revoke sessions, and review both source addresses.
+logsource:
+  category: authentication
+detection:
+  selection:
+    outcome: success
+  correlation:
+    type: impossible_travel
+    group_by:
+      - user
+    max_speed_kmh: 900
+    min_distance_km: 500

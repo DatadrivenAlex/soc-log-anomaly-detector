@@ -1,0 +1,41 @@
+title: SQL injection pattern
+id: sql-injection
+status: experimental
+author: Alexandru Cojocari
+description: >
+  A request URL matches a small set of SQL injection shapes (UNION SELECT,
+  OR 1=1, information_schema, SLEEP, BENCHMARK, xp_cmdshell) after percent-decoding.
+level: high
+base_score: 78
+mitre:
+  technique: T1190
+  technique_name: Exploit Public-Facing Application
+  tactic: Initial Access
+tags:
+  - attack.initial_access
+  - attack.t1190
+falsepositives:
+  - A blog or ticketing page that quotes a SQL example in a query string
+  - Application test fixtures that ship a literal "union select"
+recommendation: >
+  Treat a status below 400 as a possible successful injection and escalate with
+  the full URL. For 4xx or 5xx responses, block the source if it is not an
+  approved test and review the application error log.
+logsource:
+  category: web
+detection:
+  selection:
+    source: web_access
+  match:
+    field: url
+    any_regex:
+      - "(?i)union\\s+select"
+      - "(?i)'\\s*or\\s+1\\s*=\\s*1"
+      - "(?i)\\bor\\s+1\\s*=\\s*1"
+      - "(?i)information_schema"
+      - "(?i)sleep\\s*\\("
+      - "(?i)benchmark\\s*\\("
+      - "(?i)xp_cmdshell"
+  aggregate:
+    group_by:
+      - src_ip
